@@ -22,7 +22,7 @@ bool OmniMQTTclient::init(uint8_t core, uint8_t priority){
 */
 bool OmniMQTTclient::isConnected(){
   bool isConn = this->mqttClient.connected();
-  Serial.println(isConn);
+//  Serial.println(isConn);
   return isConn;
 }
 
@@ -41,10 +41,10 @@ void OmniMQTTclient::forceReconnectFromTask(){
   digitalWrite(LED_BUILTIN, LOW);
   
   //Try to connect.
-  Serial.println("Trying to connect");
+//  Serial.println("Trying to connect");
   while(!this->reconnect())
   {
-    Serial.println("Trying to connect");
+//    Serial.println("Trying to connect");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 
@@ -54,7 +54,7 @@ void OmniMQTTclient::forceReconnectFromTask(){
 
   // Turn LED on.
   // TODO: outsource
-  Serial.println("Connection successfull");
+//  Serial.println("Connection successfull");
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
@@ -63,7 +63,7 @@ void OmniMQTTclient::forceReconnectFromTask(){
 void OmniMQTTclient::keepConnectionTask(void* params){
   OmniMQTTclient* self = (OmniMQTTclient*)params;
   while(1){
-    Serial.println("Check connection");
+//    Serial.println("Check connection");
     if(!self->isConnected()){
       self->forceReconnectFromTask();
     }

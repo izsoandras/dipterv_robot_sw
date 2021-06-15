@@ -8,6 +8,7 @@
 #include <WiFiClient.h>
 #include "mymqtt.h"
 #include "battery.h"
+#include "esp_log.h"
 
 
 const char *ssid = "OmniBot";

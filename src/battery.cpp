@@ -16,7 +16,7 @@ float Battery::adc2volt(uint16_t adc_value){
 }
 
 bool Battery::init(){
-  pinMode(this->pin, OUTPUT);
+  pinMode(this->pin, INPUT);
   return true;
 }
 

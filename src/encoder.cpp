@@ -27,7 +27,7 @@ bool Encoder::init(){
 }
 
 void Encoder::resume(){
-    pcnt_counter_clear(this->conf.unit);
+    pcnt_counter_resume(this->conf.unit);
 }
 
 void Encoder::pause(){

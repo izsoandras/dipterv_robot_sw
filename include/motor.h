@@ -20,7 +20,7 @@ class Motor{
         uint8_t resolution;
         uint8_t duty_cycle = 0;
 
-        void setOutput(bool dirA, bool dirB, uint8_t duty_cycle);
+        void setOutput(uint8_t dirA, uint8_t dirB, uint8_t duty_cycle);
     public:
         Motor(motor_config_t conf, ledc_channel_t pwm_channel, uint freq, uint8_t resolution);
         bool init();

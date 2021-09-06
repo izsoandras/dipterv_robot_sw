@@ -14,7 +14,7 @@ namespace pinout{
   // motors
   const uint8_t mot1_encA = 32; // sensor on motor is dead
   const uint8_t mot1_encB = 33;
-  const uint8_t mot1_dirA = 0;
+  const uint8_t mot1_dirA = 13;
   const uint8_t mot1_dirB = 15;
   const uint8_t mot1_PWM = 2;
 

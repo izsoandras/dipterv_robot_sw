@@ -11,6 +11,8 @@
 #include "battery.h"
 #include "esp_log.h"
 #include "motor.h"
+#include "encoder.h"
+#include "driver/pcnt.h"
 
 
 const char *ssid = "OmniBot";
@@ -24,12 +26,14 @@ const char *password = "myomni04";
 //Battery batt;
 
 motor_config_t mot_conf = {
-    .dirA_pin = pinout::mot3_dirA,
-    .dirB_pin = pinout::mot3_dirB,
-    .PWM_pin = pinout::mot3_PWM,
+    .dirA_pin = pinout::mot2_dirA,
+    .dirB_pin = pinout::mot2_dirB,
+    .PWM_pin = pinout::mot2_PWM,
   };
 
 Motor mot1(mot_conf, LEDC_CHANNEL_0, 100, 8);
+
+Encoder enc1(pinout::mot2_encB, PCNT_UNIT_0);
 
 //void updateValuesSlow(void* params);
 
@@ -39,16 +43,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
   
-  /*
-  pinMode(pinout::mot2_dirA, OUTPUT);
-  pinMode(pinout::mot2_dirB, OUTPUT);
-  
-  digitalWrite(pinout::mot2_dirA, HIGH);
-  digitalWrite(pinout::mot2_dirB, LOW);
-
-  ledcSetup(0, 100, 8);
-  ledcAttachPin(pinout::mot2_PWM, 0);
-  ledcWrite(0, 200);*/
 
   //batt.init();
   //pinMode(LED_BUILTIN, OUTPUT);
@@ -59,9 +53,12 @@ void setup() {
   //mqttClient.setCallback();
 
   mot1.init();
-
-
-  
+  enc1.init();
+  enc1.resume();
+/*
+  ledcSetup(LEDC_CHANNEL_1, 200, 8);
+  ledcAttachPin(pinout::mot1_encA, LEDC_CHANNEL_1);
+  ledcWrite(LEDC_CHANNEL_1, 125);*/
 /*
   xTaskCreatePinnedToCore( communicationTask,
                            "Communication",
@@ -80,13 +77,14 @@ void setup() {
                            1);*/
   
   Serial.println("Rotating with 70");
-  mot1.rotateCCW(70);
+  mot1.rotateCCW(255);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   //mqttClient.loop();
- // vTaskDelay(100 / portTICK_PERIOD_MS);
+  ESP_LOGW("ENC","Pulse cound: %d", enc1.getCountReset());
+ vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 /*
 void updateValuesSlow(void* params){

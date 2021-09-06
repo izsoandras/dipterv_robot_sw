@@ -20,10 +20,10 @@ const char *password = "myomni04";
 
 
 // MQTT structures.
-//WiFiClient wifiClient;
-//OmniMQTTclient mqttClient("192.168.4.2", 1883, wifiClient);
+WiFiClient wifiClient;
+OmniMQTTclient mqttClient("192.168.4.2", 1883, wifiClient);
 
-//Battery batt;
+Battery batt;
 
 motor_config_t mot_conf = {
     .dirA_pin = pinout::mot2_dirA,
@@ -35,31 +35,30 @@ Motor mot1(mot_conf, LEDC_CHANNEL_0, 100, 8);
 
 Encoder enc1(pinout::mot2_encB, PCNT_UNIT_0);
 
-//void updateValuesSlow(void* params);
+void updateValuesSlow(void* params);
 
-//void communicationTask(void* params);
+void communicationTask(void* params);
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
   
 
-  //batt.init();
-  //pinMode(LED_BUILTIN, OUTPUT);
-  //digitalWrite(LED_BUILTIN, LOW);
+  batt.init();
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
   
-  //WiFi.softAP(ssid, password, 1, false, 1);
-  //mqttClient.init();
-  //mqttClient.setCallback();
+  WiFi.softAP(ssid, password, 1, false, 1);
+  mqttClient.init();
 
   mot1.init();
   enc1.init();
   enc1.resume();
-/*
+
   ledcSetup(LEDC_CHANNEL_1, 200, 8);
   ledcAttachPin(pinout::mot1_encA, LEDC_CHANNEL_1);
-  ledcWrite(LEDC_CHANNEL_1, 125);*/
-/*
+  ledcWrite(LEDC_CHANNEL_1, 125);
+
   xTaskCreatePinnedToCore( communicationTask,
                            "Communication",
                            2000,
@@ -74,7 +73,7 @@ void setup() {
                            NULL,
                            2,
                            NULL,
-                           1);*/
+                           1);
   
   Serial.println("Rotating with 70");
   mot1.rotateCCW(255);
@@ -82,18 +81,18 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //mqttClient.loop();
+  mqttClient.loop();
   ESP_LOGW("ENC","Pulse cound: %d", enc1.getCountReset());
  vTaskDelay(100 / portTICK_PERIOD_MS);
 }
-/*
+
 void updateValuesSlow(void* params){
   while(true){
     batt.updateVoltage();
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
-}*/
-/*
+}
+
 void communicationTask(void* params){
   while(true){
     if(mqttClient.isConnected()){
@@ -104,4 +103,4 @@ void communicationTask(void* params){
 //    Serial.println(batt.getVoltage());
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
-}*/
+}

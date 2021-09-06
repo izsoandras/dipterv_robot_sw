@@ -72,6 +72,8 @@ void communicationTask(void* params){
   while(true){
     if(mqttClient.isConnected()){
       mqttClient.publishBattery(batt.getVoltage());
+    } else{
+      mqttClient.reconnect();
     }
 //    Serial.println(batt.getVoltage());
     vTaskDelay(1000 / portTICK_PERIOD_MS);

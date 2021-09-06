@@ -4,11 +4,11 @@
 #include "PubSubClient.h"
 
 enum MyTopics{
-  battery_topic,
+  telemetry,
   topics_no
 };
 
-const String topicNames[topics_no] = {"batt"};
+const String topicNames[topics_no] = {"tel"};
 
 class OmniMQTTclient{
   private:

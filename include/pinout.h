@@ -3,7 +3,7 @@
 
 namespace pinout{
   // analog pins
-  const uint8_t battery_pin = 36;
+  const uint8_t battery_pin = 36; // different as in PCB design, because pin 23 can't operate as analog input
 
 
   // I2C pins

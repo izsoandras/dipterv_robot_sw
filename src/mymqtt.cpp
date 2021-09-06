@@ -74,9 +74,11 @@ void OmniMQTTclient::keepConnectionTask(void* params){
 
 void OmniMQTTclient::publishBattery(float voltage){
   uint8_t float_size = sizeof(float);
-  uint8_t bytes_to_send[float_size];
-  memcpy(bytes_to_send, &voltage, float_size);
-  this->mqttClient.publish(topicNames[battery_topic].c_str(),bytes_to_send,4);
+  uint8_t bytes_to_send[float_size+2];
+  bytes_to_send[0] = float_size;
+  bytes_to_send[1] = 0x01;
+  memcpy(bytes_to_send+2, &voltage, float_size);
+  this->mqttClient.publish(topicNames[telemetry].c_str(),bytes_to_send,float_size+2);
 }
 
 bool OmniMQTTclient::loop(){

@@ -10,7 +10,7 @@ class Battery{
     float adc_offset = 0.634;
     float adc_coeff = 11.727/2292;
     
-    uint8_t voltage = 0;
+    float voltage = 0;
 
     float adc2volt(uint16_t adc_value);
   public:

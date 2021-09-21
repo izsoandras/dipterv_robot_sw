@@ -17,7 +17,9 @@ void Motor::setOutput(uint8_t dirA, uint8_t dirB, uint8_t duty_cycle){
     digitalWrite(this->conf.dirA_pin, dirA);
     digitalWrite(this->conf.dirB_pin, dirB);
     this->duty_cycle = duty_cycle;
-    ledcWrite(this->pwm_channel, duty_cycle); // TODO: convert to percentage input
+    uint8_t pwm_duty = (int)(duty_cycle/100.0*255);
+    ledcWrite(this->pwm_channel, pwm_duty); // TODO: convert to percentage input
+    //ESP_LOGW("MOT","Duty: %d", pwm_duty);
     return;
 }
 
@@ -37,4 +39,8 @@ uint8_t Motor::getDutyCycle(){
 
 bool Motor::isSaturated(){
     return this->duty_cycle >= 100;
+}
+
+motor_config_t Motor::getConf(){
+    return conf;
 }

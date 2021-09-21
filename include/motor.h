@@ -29,6 +29,7 @@ class Motor{
         void stop();
         uint8_t getDutyCycle();
         bool isSaturated();
+        motor_config_t getConf();
 };
 
 #endif

@@ -21,7 +21,7 @@ const char *password = "myomni04";
 
 // MQTT structures.
 WiFiClient wifiClient;
-OmniMQTTclient mqttClient("192.168.4.2", 1883, wifiClient);
+OmniMQTTclient<2> mqttClient("192.168.4.2", 1883, wifiClient);
 
 Battery batt;
 

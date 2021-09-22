@@ -38,6 +38,7 @@ class OmniMQTTclient{
     static void keepConnectionTask(void* params);
     void publishBattery(const float voltage);
     void publish1float(const char* topic, uint8_t type_byte, float f);
+    void publish_u16(const char* topic, uint8_t type_byte, uint16_t i);
     void publishData(const char topic[], uint8_t type, byte* payload, uint8_t length);
     bool loop();
     
@@ -194,4 +195,14 @@ bool OmniMQTTclient<MAX_CB_NO>::subscribe(const char topic[]){
   return mqttClient.subscribe(topic);
 }
 
+template <int MAX_CB_NO>
+void OmniMQTTclient<MAX_CB_NO>::publish_u16(const char* topic, uint8_t type_byte, uint16_t i){
+  uint8_t size = sizeof(uint16_t);
+  uint8_t bytes_to_send[size+2];
+  bytes_to_send[0] = size;
+  bytes_to_send[1] = type_byte;
+  memcpy(bytes_to_send+2, &i, size);
+  this->mqttClient.publish(topic, bytes_to_send,size+2);
+}
 #endif
+

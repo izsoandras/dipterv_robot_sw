@@ -22,6 +22,7 @@ class OmniMQTTclient{
     char* name = (char*)"OmniBot";
     char* username = (char*)"omnibot";
     char* pwd = (char*)"myomni";
+    uint8_t status_led;
 
     void (*on_msg_callbacks[MAX_CB_NO])(const char[], byte*, unsigned int);
     int callback_no = 0;
@@ -30,7 +31,7 @@ class OmniMQTTclient{
 
     void call_callbacks(const char topic[], byte* payload, unsigned int length);
   public:
-    OmniMQTTclient(const char* ipaddr, uint16_t port, Client& client);
+    OmniMQTTclient(const char* ipaddr, uint16_t port, Client& client, uint8_t led_pin = LED_BUILTIN);
     bool init(uint8_t core = 0, uint8_t priority = 2);
     bool isConnected();
     bool reconnect();
@@ -54,7 +55,8 @@ const char* topicNames[] = {"tel"};
 /* Instantiate the client object
 */
 template <int MAX_CB_NO>
-OmniMQTTclient<MAX_CB_NO>::OmniMQTTclient(const char* ipaddr, uint16_t port, Client& client):mqttClient(ipaddr, port, client){}
+OmniMQTTclient<MAX_CB_NO>::OmniMQTTclient(const char* ipaddr, uint16_t port, Client& client, uint8_t led_pin):mqttClient(ipaddr, port, client),status_led(led_pin){
+}
 
 /* Initialize the client (connect and subscribe to topics)
 */
@@ -101,7 +103,7 @@ void OmniMQTTclient<MAX_CB_NO>::forceReconnectFromTask(){
   
   // Turn LED off.
   // TODO: outsource
-  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(status_led, LOW);
   
   //Try to connect.
 //  Serial.println("Trying to connect");
@@ -119,7 +121,7 @@ void OmniMQTTclient<MAX_CB_NO>::forceReconnectFromTask(){
   // Turn LED on.
   // TODO: outsource
 //  Serial.println("Connection successfull");
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(status_led, HIGH);
 }
 
 /* FreeRTOS task to keep the connection to the broker alive

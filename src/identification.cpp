@@ -26,7 +26,7 @@ WebServer server(80);
 
 // MQTT structures.
 WiFiClient wifiClient;
-OmniMQTTclient<2> mqttClient("192.168.4.2", 1883, wifiClient);
+OmniMQTTclient<2> mqttClient("192.168.4.2", 1883, wifiClient, 5);
 
 Battery batt;
 
@@ -40,6 +40,9 @@ Motor mot2ident(mot_conf, LEDC_CHANNEL_0, 100, 8);
 float motor_speed = 0;
 
 Encoder ident_enc(pinout::mot3_encB, PCNT_UNIT_0);
+
+uint8_t ledpin = 12;
+bool hasSpace = true;
 
 void updateSpeed(void* params);
 void sendSpeed(void* params);
@@ -71,12 +74,17 @@ void setup() {
   Serial.println("Identification start");
   
   SPIFFS.begin(true);
+  SPIFFS.format();
+
+  pinMode(ledpin, OUTPUT);
+  digitalWrite(ledpin, HIGH);
 
   File file = SPIFFS.open("/meas.csv", FILE_WRITE);
   file.println("Duty, Speed");
   file.close();
 
   meas_file = SPIFFS.open("/meas.csv", FILE_APPEND);
+
 
   batt.init();
   pinMode(LED_BUILTIN, OUTPUT);
@@ -90,9 +98,9 @@ void setup() {
   mqttClient.add_calback(ident_mqtt);
   mqttClient.init();
 
-
-  
-  mqttClient.subscribe("ident");
+  while(!mqttClient.subscribe("ident")){
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
 
 
   mot2ident.init();
@@ -183,8 +191,11 @@ void updateSpeed(void* params){
         
         if(recording){
           char row[16];
-          sprintf(row, "%d,%f", ident_duty_current, motor_speed);
-          meas_file.println(row);
+
+          if(hasSpace){
+            sprintf(row, "%d,%f", ident_duty_current, motor_speed);
+            meas_file.println(row);
+          }
 
         }
         
@@ -202,6 +213,16 @@ void sendSpeed(void* params){
         memcpy(payload+1, &f, 4);
 
         mqttClient.publishData("tel", 0xA1, payload, 5);
+        int usedBytes = SPIFFS.usedBytes();
+        if(usedBytes > 450000){
+          hasSpace = false;
+          digitalWrite(ledpin, LOW);
+        }
+
+        if(ident_status != 3){
+          //ESP_LOGI("used","used space: %d", usedBytes);
+          ESP_LOGI("status","status: %d", ident_status);
+        }
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }

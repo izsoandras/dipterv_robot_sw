@@ -87,6 +87,8 @@ void setup() {
 
 
   batt.init();
+  mot2ident.init();
+
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   
@@ -97,6 +99,10 @@ void setup() {
   
   mqttClient.add_calback(ident_mqtt);
   mqttClient.init();
+
+  while(!mqttClient.isConnected()){
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
 
   while(!mqttClient.subscribe("ident")){
     vTaskDelay(pdMS_TO_TICKS(100));
@@ -144,20 +150,21 @@ xTaskCreatePinnedToCore( updateSpeed,
 void loop() {
     // put your main code here, to run repeatedly:
   
-    if(ident_status == 0){
-        mot2ident.stop();
-        ident_duty_current = 0;
-    } else if(ident_status == 1 and ident_prev_status == 0){
-        ident_duty = ident_duty + 10;
-        if(ident_duty > 100){
-            ident_status = 3;
-            ident_duty_current = 0;
-        } else {
-            mot2ident.rotateCW(ident_duty);
-            ident_duty_current = ident_duty;
-        }
+    // if(ident_status == 0){
+    //     mot2ident.stop();
+    //     ident_duty_current = 0;
+    // } else if(ident_status == 1 and ident_prev_status == 0){
+    //     ident_duty = ident_duty + 10;
+    //     if(ident_duty > 100){
+    //         ident_status = 3;
+    //         ident_duty_current = 0;
+    //     } else {
+    //         mot2ident.rotateCW(ident_duty);
+    //         ident_duty_current = ident_duty;
+    //     }
 
-    } if(ident_status==3){
+    // }
+     if(ident_status==3){
       meas_file.close();
       recording = false;
     }
@@ -212,7 +219,7 @@ void sendSpeed(void* params){
         float f = motor_speed;
         memcpy(payload+1, &f, 4);
 
-        mqttClient.publishData("tel", 0xA1, payload, 5);
+        //mqttClient.publishData("tel", 0xA1, payload, 5);
         int usedBytes = SPIFFS.usedBytes();
         if(usedBytes > 450000){
           hasSpace = false;
@@ -240,8 +247,20 @@ void sendBattery(void* params){
 }
 
 void ident_mqtt(const char topic[], byte* payload, unsigned int length){
-    if(strcmp(topic, "ident") == 0){
-      ident_status =  (int)payload[0] - 48; // 48 is ASCII code of 0
-      ESP_LOGW(topic, "%s: %d",topic, ident_status);
+  ESP_LOGI(topic,"%s",topic);
+  if(strcmp(topic, "ident") == 0){
+      ident_duty_current = (int)payload[0]; // 48 is ASCII code of 0
+      if(ident_duty_current > 100){
+        ident_duty_current = 0;
+        ident_status = 3;
+      }
+      mot2ident.rotateCW(ident_duty_current);
+      ESP_LOGW(topic, "%s: %d",topic, ident_duty_current);
     }
 }
+// void ident_mqtt(const char topic[], byte* payload, unsigned int length){
+//     if(strcmp(topic, "ident") == 0){
+//       ident_status =  (int)payload[0] - 48; // 48 is ASCII code of 0
+//       ESP_LOGW(topic, "%s: %d",topic, ident_status);
+//     }
+// }

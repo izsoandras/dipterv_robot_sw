@@ -10,7 +10,7 @@ void MotorControllerPID::setSetpoint(float setpoint){
 }
 void MotorControllerPID::step(){
     uint ticks = this->encoder.getCountReset();
-    float y = this->encoder.ticks2radps(ticks);
+    float y = this->encoder.ticks2rad(ticks)*this->time_step;
 
     float e = this->setpoint - y;
     float de = this->err_prev - e;

@@ -14,7 +14,7 @@ namespace pinout{
   // motors
   const uint8_t mot1_encA = 32; // sensor on motor is dead
   const uint8_t mot1_encB = 33;
-  const uint8_t mot1_dirA = 13; // GPIO0 is the boot pin, changed to this from that, that's why it's different from the PCB design
+  const uint8_t mot1_dirA = 13;
   const uint8_t mot1_dirB = 15;
   const uint8_t mot1_PWM = 2;
 

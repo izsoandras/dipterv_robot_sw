@@ -27,7 +27,7 @@ bool Encoder::init(){
 }
 
 void Encoder::resume(){
-    pcnt_counter_clear(this->conf.unit);
+    pcnt_counter_resume(this->conf.unit);
 }
 
 void Encoder::pause(){
@@ -50,6 +50,6 @@ int16_t Encoder::getCountReset(){
     return count;
 }
 
-float Encoder::ticks2radps(uint ticks){
+float Encoder::ticks2rad(uint ticks){
     return ticks * this->ticks_to_radps;
 }

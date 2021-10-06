@@ -6,6 +6,7 @@
 
 enum MyTopics{
   telemetry,
+  param,
   topics_no
 };
 
@@ -41,6 +42,7 @@ class OmniMQTTclient{
     void publish1float(const char* topic, uint8_t type_byte, float f);
     void publish_u16(const char* topic, uint8_t type_byte, uint16_t i);
     void publishData(const char topic[], uint8_t type, byte* payload, uint8_t length);
+    void publishMotSpeed(const uint8_t mot_idx, float current_speed, float setpoint);
     bool loop();
     
     bool add_calback(void(*on_msg_callback)(const char[], byte*, unsigned int));
@@ -50,7 +52,7 @@ class OmniMQTTclient{
 
 
 
-const char* topicNames[] = {"tel"};
+const char* topicNames[] = {"tel","param"};
 
 /* Instantiate the client object
 */
@@ -115,7 +117,8 @@ void OmniMQTTclient<MAX_CB_NO>::forceReconnectFromTask(){
 
   // Subscribe for topics
   for(int i = 0; i < topic_no; i++){
-    mqttClient.subscribe(topics[i]);
+    while(this->isConnected() && !mqttClient.subscribe(topics[i])
+      vTaskDelay(pdMS_TO_TICKS(100))
   }
 
   // Turn LED on.
@@ -205,6 +208,17 @@ void OmniMQTTclient<MAX_CB_NO>::publish_u16(const char* topic, uint8_t type_byte
   bytes_to_send[1] = type_byte;
   memcpy(bytes_to_send+2, &i, size);
   this->mqttClient.publish(topic, bytes_to_send,size+2);
+}
+
+template <int MAX_CB_NO>
+void OmniMQTTclient<MAX_CB_NO>::publishMotSpeed(const uint8_t mot_idx, float current_speed, float setpoint){
+  uint8_t size = 2*sizeof(float);
+  uint8_t bytes_to_send[size+2];
+  bytes_to_send[0] = size;
+  bytes_to_send[1] = 0xA5+mot_idx;
+  memcpy(bytes_to_send+2, &current_speed, sizeof(float));
+  memcpy(bytes_to_send+2+sizeof(float), &setpoint, sizeof(float));
+  this->mqttClient.publish("tel", bytes_to_send,size+2);
 }
 #endif
 

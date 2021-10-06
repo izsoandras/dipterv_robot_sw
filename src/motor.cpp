@@ -13,7 +13,7 @@ bool Motor::init(){
     return true;
 }
 
-void Motor::setOutput(uint8_t dirA, uint8_t dirB, uint8_t duty_cycle){
+void Motor::setOutput(uint8_t dirA, uint8_t dirB, float duty_cycle){
     digitalWrite(this->conf.dirA_pin, dirA);
     digitalWrite(this->conf.dirB_pin, dirB);
     this->duty_cycle = duty_cycle;
@@ -23,10 +23,10 @@ void Motor::setOutput(uint8_t dirA, uint8_t dirB, uint8_t duty_cycle){
     return;
 }
 
-void Motor::rotateCW(uint8_t duty_cycle){
+void Motor::rotateCW(float duty_cycle){
     this->setOutput(HIGH, LOW, duty_cycle);
 }
-void Motor::rotateCCW(uint8_t duty_cycle){
+void Motor::rotateCCW(float duty_cycle){
     this->setOutput(LOW, HIGH, duty_cycle);
 }
 void Motor::stop(){

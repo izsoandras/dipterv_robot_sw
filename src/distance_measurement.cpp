@@ -119,7 +119,7 @@ void updateDistance(void* params){
   while(true){
     distance = dist_sensor.readRangeSingleMillimeters();
     // vTaskDelayUntil(&xLastWakeTime, xFrequency);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    vTaskDelay(pdMS_TO_TICKS(500));
   } 
 }
 
@@ -127,7 +127,7 @@ void sendDistance(void* params){
     while(true){
         mqttClient.publish_u16("tel", 0xA3, distance);
         ESP_LOGW("DIST","Distance: %d", distance);
-        vTaskDelay(1000);
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 

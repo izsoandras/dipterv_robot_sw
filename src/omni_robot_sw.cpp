@@ -92,17 +92,15 @@ void setup() {
 
   mqttClient.add_calback(param_handler);
   mqttClient.init();
+  ESP_LOGI("mqttc","MQTT initialized");
   while(!mqttClient.isConnected()){
     vTaskDelay(pdMS_TO_TICKS(100));
   }
-
+  ESP_LOGI("mqttc","MQTT connected");
   while(!mqttClient.subscribe("param")){
     vTaskDelay(pdMS_TO_TICKS(100));
   }
-
-  ledcSetup(LEDC_CHANNEL_1, 200, 8);
-  ledcAttachPin(pinout::mot1_encA, LEDC_CHANNEL_1);
-  ledcWrite(LEDC_CHANNEL_1, 125);
+  ESP_LOGI("mqttc","MQTT subscribed");
 
   xTaskCreatePinnedToCore( communicationTask,
                            "Communication",
@@ -135,13 +133,17 @@ void setup() {
                            2,
                            NULL,
                            1);
+
+  ESP_LOGI("Tasks launched");
+
   ESP_LOGI("Setup finished");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
    //ESP_LOGW("ENC","Pulse cound: %d", ident_enc.getCountReset());
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  mqttClient.loop();
+  vTaskDelay(pdMS_TO_TICKS(100));
 }
 
 void updateValuesSlow(void* params){
@@ -170,10 +172,7 @@ void communicationTask(void* params){
   while(true){
     if(mqttClient.isConnected()){
       mqttClient.publishBattery(batt.getVoltage());
-    } else{
-      mqttClient.reconnect();
     }
-    mqttClient.loop();
 //    Serial.println(batt.getVoltage());
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }

@@ -87,7 +87,7 @@ void wheel_control(void *params){
         current_speeds[mot_idx] = encoders[mot_idx]->ticks2rad(encoders[mot_idx] ->getCountReset())/(cycle_period/1000.0);
 
         // calculate error
-        errors[mot_idx] = speed_setpoints[mot_idx] - current_speeds[mot_idx];
+        errors[mot_idx] = fabs(speed_setpoints[mot_idx]) - current_speeds[mot_idx];
 
         // select direction
         if(speed_setpoints[mot_idx] == 0){
@@ -97,7 +97,6 @@ void wheel_control(void *params){
             dir_idx = 0;
         }else{
             dir_idx = 1;
-            speed_setpoints[mot_idx] = -1 * speed_setpoints[mot_idx];
         }
 
         // calculate controller output value and update state

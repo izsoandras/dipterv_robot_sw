@@ -77,9 +77,7 @@ void wheel_control(void *params){
 
   int mot_idx = 0;
   int dir_idx = 0;
-  int param_idx = 0;
   int nl_idx = 0;
-  float measurement = 0;
   while(true){
     
     for(mot_idx = 0; mot_idx <3; mot_idx++){

@@ -232,6 +232,8 @@ bool OmniMQTTclient<MAX_CB_NO>::loop()
     bool ret = this->mqttClient.loop();
     xSemaphoreGive(this->xSemaphore);
     return ret;
+  }else{
+    return false;
   }
 }
 
@@ -274,6 +276,8 @@ bool OmniMQTTclient<MAX_CB_NO>::subscribe(const char topic[])
     bool ret = mqttClient.subscribe(topic);
     xSemaphoreGive(this->xSemaphore);
     return ret;
+  }else{
+    return false;
   }
 }
 

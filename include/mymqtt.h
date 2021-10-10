@@ -76,16 +76,18 @@ bool OmniMQTTclient<MAX_CB_NO>::init(uint8_t core, uint8_t priority)
   mqttClient.setCallback(std::bind(&OmniMQTTclient<MAX_CB_NO>::call_callbacks, this, _1, _2, _3));
 
   while(!this->mqttClient.connect(this->name, this->username, this->pwd)){
+  ESP_LOGI("sd","FUCKIN TRYING");
     vTaskDelay(pdMS_TO_TICKS(100));
   }
+  ESP_LOGI("sd","FUCKIN HELL");
 
-  // xTaskCreatePinnedToCore(this->keepConnectionTask,
-  //                         "MQTT keep connection",
-  //                         2000,
-  //                         this,
-  //                         priority,
-  //                         NULL,
-  //                         core);
+  xTaskCreatePinnedToCore(this->keepConnectionTask,
+                          "MQTT keep connection",
+                          2000,
+                          this,
+                          priority,
+                          NULL,
+                          core);
 
   return true;
 }

@@ -7,6 +7,8 @@ bool Motor::init(){
     pinMode(this->conf.dirB_pin, OUTPUT);
     ledcSetup(this->pwm_channel, this->freq, this->resolution);
     ledcAttachPin(this->conf.PWM_pin, this->pwm_channel);
+
+    this->max_duty = (1<<(this->resolution)) - 1;
     //ESP_LOGW("MOTOR", "dirA: %d\ndirB: %d\nchannel: %d\nPWM: %d\nfreq: %d\nres: %d", this->conf.dirA_pin, this->conf.dirB_pin, this->pwm_channel, this->conf.PWM_pin, this->freq, this->resolution);
 
     this->stop();
@@ -17,9 +19,9 @@ void Motor::setOutput(uint8_t dirA, uint8_t dirB, float duty_cycle){
     digitalWrite(this->conf.dirA_pin, dirA);
     digitalWrite(this->conf.dirB_pin, dirB);
     this->duty_cycle = duty_cycle;
-    uint8_t pwm_duty = (int)(duty_cycle/100.0*255);
-    ledcWrite(this->pwm_channel, pwm_duty); // TODO: convert to percentage input
-    //ESP_LOGW("MOT","Duty: %d", pwm_duty);
+    uint16_t pwm_duty = (uint16_t)(duty_cycle/100.0 * this->max_duty);
+    ledcWrite(this->pwm_channel, pwm_duty);
+    //ESP_LOGW("MOT","In: %f, Duty: %d, max: %f", duty_cycle, pwm_duty, this->max_duty);
     return;
 }
 

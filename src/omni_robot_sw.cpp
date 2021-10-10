@@ -17,7 +17,7 @@
 
 
 const char *ssid = "OmniBot";
-const char *password = "myomni04";
+const char *password = "omnibot4";
 
 
 // MQTT structures.
@@ -32,7 +32,7 @@ motor_config_t mot1_conf = {
     .PWM_pin = pinout::mot1_PWM,
   };
 
-Motor mot1(mot1_conf, LEDC_CHANNEL_0, 100, 8);
+Motor mot1(mot1_conf, LEDC_CHANNEL_0, 5000, 10);
 
 motor_config_t mot2_conf = {
     .dirA_pin = pinout::mot2_dirA,
@@ -40,7 +40,7 @@ motor_config_t mot2_conf = {
     .PWM_pin = pinout::mot2_PWM,
   };
 
-Motor mot2(mot2_conf, LEDC_CHANNEL_1, 100, 8);
+Motor mot2(mot2_conf, LEDC_CHANNEL_1, 5000, 10);
 
 motor_config_t mot3_conf = {
     .dirA_pin = pinout::mot3_dirA,
@@ -48,7 +48,7 @@ motor_config_t mot3_conf = {
     .PWM_pin = pinout::mot3_PWM,
   };
 
-Motor mot3(mot3_conf, LEDC_CHANNEL_2, 100, 8);
+Motor mot3(mot3_conf, LEDC_CHANNEL_2, 5000, 10);
 
 Encoder enc1(pinout::mot1_encB, PCNT_UNIT_0);
 Encoder enc2(pinout::mot2_encB, PCNT_UNIT_1);
@@ -89,6 +89,7 @@ void setup() {
   encoders[2] = &enc3;
   
   WiFi.softAP(ssid, password, 1, false, 1);
+  
 
   mqttClient.add_calback(param_handler);
   mqttClient.init();

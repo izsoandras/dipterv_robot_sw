@@ -19,6 +19,7 @@ class Motor{
         uint freq;
         uint8_t resolution;
         uint8_t duty_cycle = 0;
+        float max_duty;
 
         void setOutput(uint8_t dirA, uint8_t dirB, float duty_cycle);
     public:

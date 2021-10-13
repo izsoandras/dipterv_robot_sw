@@ -14,11 +14,11 @@
 #include "encoder.h"
 #include "driver/pcnt.h"
 #include "wheel_control.h"
+#include "Functions.h"
 
 
 const char *ssid = "OmniBot";
 const char *password = "omnibot4";
-
 
 // MQTT structures.
 WiFiClient wifiClient;
@@ -66,6 +66,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
   
+  float M[2][2] = {{1,2},{3,4}};
+  ESP_LOGI("MTST","%d",inv(&M[0][0],4));
 
   batt.init();
   pinMode(LED_BUILTIN, OUTPUT);

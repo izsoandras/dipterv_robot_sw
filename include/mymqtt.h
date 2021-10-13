@@ -47,6 +47,7 @@ public:
   void publish_u16(const char *topic, uint8_t type_byte, uint16_t i);
   void publishData(const char topic[], uint8_t type, byte *payload, uint8_t length);
   void publishMotSpeed(const uint8_t mot_idx, float current_speed, float setpoint);
+  void publish3float(uint8_t type, const float[]);
   bool loop();
 
   bool add_calback(void (*on_msg_callback)(const char[], byte *, unsigned int));
@@ -300,5 +301,10 @@ void OmniMQTTclient<MAX_CB_NO>::publishMotSpeed(const uint8_t mot_idx, float cur
   memcpy(payload, &current_speed, sizeof(float));
   memcpy(payload + sizeof(float), &setpoint, sizeof(float));
   this->publishData("tel", 0xA5 + mot_idx, payload, size);
+}
+
+template <int MAX_CB_NO>
+void OmniMQTTclient<MAX_CB_NO>::publish3float(uint8_t type, const float payload[]){
+  this->publishData("tel", type, payload, 3*sizeof(float));
 }
 #endif

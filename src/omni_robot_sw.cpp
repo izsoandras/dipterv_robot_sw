@@ -65,9 +65,6 @@ void param_handler(const char topic[], byte* payload, unsigned int length);
 void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
-  
-  float M[2][2] = {{1,2},{3,4}};
-  ESP_LOGI("MTST","%d",inv(&M[0][0],4));
 
   batt.init();
   pinMode(LED_BUILTIN, OUTPUT);

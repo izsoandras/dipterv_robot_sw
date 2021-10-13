@@ -14,7 +14,7 @@
 #include "encoder.h"
 #include "driver/pcnt.h"
 #include "wheel_control.h"
-#include "Functions.h"
+#include "position_control.h"
 
 
 const char *ssid = "OmniBot";
@@ -134,6 +134,14 @@ void setup() {
                            NULL,
                            1);
 
+  xTaskCreatePinnedToCore(position_control,
+                          "post_control",
+                          2000,
+                          NULL,
+                          2,
+                          NULL,
+                          1); 
+
   ESP_LOGI("Tasks launched");
 
   ESP_LOGI("Setup finished");
@@ -182,9 +190,17 @@ void param_handler(const char topic[], byte* payload, unsigned int length){
   ESP_LOGI(topic,"%s",topic);
   if(strcmp(topic,"param") == 0){
     // Wheel setpoint received
-    if(payload[1] == 0xA4){
-        memcpy(&speed_setpoints, payload + 2, 12);
-        ESP_LOGW("wheel","%f,/t%f,/t%f", speed_setpoints[0], speed_setpoints[1], speed_setpoints[2]);
+    switch(payload[1]){
+      case 0xA4:
+        //memcpy(&speed_setpoints, payload + 2, 12);
+        ESP_LOGW("wheel", "%f,/t%f,/t%f", speed_setpoints[0], speed_setpoints[1], speed_setpoints[2]);
+        break;
+      case 0xA9:
+        memcpy(&control_vec, payload + 2, 12);
+        break;
+      default:
+        ESP_LOGW("MQTT", "Unknown type on params");
+        break;
     }
   }
 }

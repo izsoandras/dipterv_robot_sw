@@ -88,6 +88,10 @@ void rls(uint8_t NP, uint8_t NZ, uint8_t NZE, float theta[], float u, float y, u
 void okid(float u[], float y[], float g[], uint16_t row, uint16_t column);
 void era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B[], float C[], uint8_t row_a, uint8_t inputs_outputs);
 
+void add(float A[], float B[], float C[], uint16_t row, uint16_t col);
+void sub(float A[], float B[], float C[], uint16_t length);
+void copy(float dest[],const float orig[], uint16_t length);
+
 #ifdef __cplusplus
 }
 #endif

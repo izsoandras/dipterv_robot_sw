@@ -15,7 +15,8 @@
 #include "driver/pcnt.h"
 #include "wheel_control.h"
 #include "position_control.h"
-
+#include "mykalman.h"
+#include "esp_timer.h"
 
 const char *ssid = "OmniBot";
 const char *password = "omnibot4";
@@ -65,6 +66,28 @@ void param_handler(const char topic[], byte* payload, unsigned int length);
 void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
+
+  float A[] = {1, -0.01, 0, 1};
+  float B[] = {1, 0};
+  float C[] = {1,0};
+  float Rv[] = {0.3,0,0, 0.003};
+  float Rz[] = {0.4};
+  KF testKF(A, B, C, Rv, Rz, 2, 1, 1);
+
+  uint64_t start = esp_timer_get_time();
+
+  float u = 0.1;
+  float y = 0.12;
+  uint16_t measNo = 100;
+  for(int i = 0; i < measNo; i++){
+    u += 0.01;
+    y += 0.012;
+    testKF.update(&u, &y);
+  }
+
+  uint64_t end = esp_timer_get_time();
+
+  ESP_LOGI("kf meas", "Total time: %fms, Single run: %fms", (end-start)/1000.0, (end-start)/(1000.0*measNo));
 
   batt.init();
   pinMode(LED_BUILTIN, OUTPUT);

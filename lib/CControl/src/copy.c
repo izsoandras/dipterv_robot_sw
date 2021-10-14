@@ -10,7 +10,7 @@
 /*
  * A = B
  */
-void copy(float dist[], float orig[], uint16_t length){
+void copy(float dist[],const float orig[], uint16_t length){
     for(uint16_t i = 0; i < length; i++){
         dist[i] = orig[i];
     }

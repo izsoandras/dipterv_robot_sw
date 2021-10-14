@@ -45,7 +45,7 @@ public:
   void publishBattery(const float voltage);
   void publish1float(const char *topic, uint8_t type_byte, float f);
   void publish_u16(const char *topic, uint8_t type_byte, uint16_t i);
-  void publishData(const char topic[], uint8_t type, byte *payload, uint8_t length);
+  void publishData(const char topic[],const uint8_t type, const byte *payload, const uint8_t length);
   void publishMotSpeed(const uint8_t mot_idx, float current_speed, float setpoint);
   void publish3float(uint8_t type, const float[]);
   bool loop();
@@ -214,7 +214,7 @@ void OmniMQTTclient<MAX_CB_NO>::publish1float(const char *topic, uint8_t type, c
 }
 
 template <int MAX_CB_NO>
-void OmniMQTTclient<MAX_CB_NO>::publishData(const char topic[], uint8_t type, byte *payload, uint8_t length)
+void OmniMQTTclient<MAX_CB_NO>::publishData(const char topic[],const uint8_t type,const byte *payload,const uint8_t length)
 {
   uint8_t bytes_to_send[length + 2];
   bytes_to_send[0] = length;
@@ -304,7 +304,9 @@ void OmniMQTTclient<MAX_CB_NO>::publishMotSpeed(const uint8_t mot_idx, float cur
 }
 
 template <int MAX_CB_NO>
-void OmniMQTTclient<MAX_CB_NO>::publish3float(uint8_t type, const float payload[]){
+void OmniMQTTclient<MAX_CB_NO>::publish3float(uint8_t type, const float floats[3]){
+  uint8_t payload[3*sizeof(float)];
+  memcpy(payload, floats, 3*sizeof(float));
   this->publishData("tel", type, payload, 3*sizeof(float));
 }
 #endif

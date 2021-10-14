@@ -1,6 +1,7 @@
 #ifndef MYKALMAN_H
 #define MYKALMAN_H
 #include "Functions.h"
+#include "esp_log.h"
 
 class KF{
     private:
@@ -21,10 +22,11 @@ class KF{
 
         float* Ctrans;
         float* Atrans;
+        float* Yprev;
 
     public:
     KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY);
-    const float* update(const float* u, const float* y);
+    void update(float* u, float* y);
 };
 
 KF::KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY){
@@ -57,11 +59,17 @@ KF::KF(const float A[],const float B[],const float C[],const float Rv[],const fl
     Atrans = new float[dimX*dimX];
     copy(this->Atrans, A, dimX*dimX);
     tran(Atrans, dimX, dimX);
+
+    Yprev = new float[dimY];
+
+    this->dimX = dimX;
+    this->dimU = dimU;
+    this->dimY = dimY;
 }
 
-const float* KF::update(const float* u, const float* y){
-    float dimX_temp[dimX];
-    float dimXX_temp[dimX*dimX];
+void KF::update(float* u, float* y){
+    float* dimX_temp = new float[6];
+    float* dimXX_temp = new float[36];
 
     // Prediction
     // x_over =  A*x_hat + B*u
@@ -74,8 +82,13 @@ const float* KF::update(const float* u, const float* y){
     mul(A,dimXX_temp,M, dimX, dimX, dimX);
     add(M, Rv, M, dimX, dimX);
 
+    bool isNewY = true;
+    for(uint8_t i = 0; i < dimY && isNewY; i++){
+        isNewY = Yprev[i] == y[i];
+    }
+
     // Update
-    if(){
+    if(isNewY){
         float dimXY_temp[dimX*dimY];
         float dimYY_temp[dimY*dimY];
 
@@ -104,8 +117,6 @@ const float* KF::update(const float* u, const float* y){
         copy(S, M, dimX*dimX);
         copy(x_hat, x_over, dimX);
     }
-
-    return x_hat;
 }
 
 #endif

@@ -28,6 +28,8 @@ uint8_t ledpin = 12;
 
 void updateBattery(void* params);
 void sendBattery(void* params);
+void sendIMU(void*params);
+void print_calibration();
 
 void ident_mqtt(const char topic[], byte* payload, unsigned int length);
 

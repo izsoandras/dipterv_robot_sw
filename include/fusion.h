@@ -31,7 +31,7 @@ KF ori_estimator(&A_o[0][0], &B_o[0][0], &C_o[0][0], &Rv_o[0][0], &Rz_o[0][0], 2
 void update_est(){
     imu->update();
     imu_head = imu->getYaw();
-    for(uint8_t i = 0; i < 2; i++)
+    for(uint8_t i = 0; i < 3; i++)
         imu_acc[i] = imu->getAcc(i);
 
     pos_estimator.update(imu_acc, cam_vec);

@@ -18,17 +18,11 @@ float global2robot_rot[3][3] = {
                                 {0, 0, 1}
 };
 
-float A_p[6][6]={};
-float B_p[6][2]={};
-float C_p[2][6]={};
-float Rv_p[6][6]={};
-float Rz_p[2][2]={};
-
-float A_o[2][2]={};
-float B_p[2][1]={};
-float C_p[1][2]={};
-float Rv_p[2][2]={};
-float Rz_p[1][1]={};
+float A[6][6]={};
+float B[6][2]={};
+float C[2][6]={};
+float Rv[6][6]={};
+float Rz[2][2]={};
 
 float control2wheel[3][3] = {
     {34.6410161513775,	20,	2.73692000000000},
@@ -36,16 +30,13 @@ float control2wheel[3][3] = {
     {-34.6410161513775,	20.0000000000000,	2.73692000000000}
 };
     // TODO: only 1 KF is needed
-    KF pos_estimator(A_p, B_p, C_p, Rv_p, Rz_p, 6, 2, 2);
-    KF ori_estimator(A_o, B_o, C_o, Rv_o, Rz_o, 2, 1, 1);
+    KF state_estimator(&A[0][0], &B[0][0], &C[0][0], &Rv[0][0], &Rz[0][0], 6, 2, 2);
 
 void position_control(){
         
-        pos_estimator.update(control_vec, meas_vec);
-        pos_estimator.update(control_vec+2, meas_vec+2);
+        state_estimator.update(control_vec, meas_vec);
 
-        memcpy(state_vec, pos_estimator.x_hat, 2*sizeof(float));
-        state_vec[2] = ori_estimator.x_hat[1];
+        memcpy(state_vec, pos_estimator.x_hat, 3*sizeof(float));
 
         sub(ref_vec, state_vec, err_vec, 3);
 

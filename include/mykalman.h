@@ -67,8 +67,8 @@ KF::KF(const float A[],const float B[],const float C[],const float Rv[],const fl
 }
 
 void KF::update(float* u, float* y){
-    float* dimX_temp = new float[6];
-    float* dimXX_temp = new float[36];
+    float* dimX_temp = new float[dimX];
+    float* dimXX_temp = new float[dimX*dimX];
 
     // Prediction
     // x_over =  A*x_hat + B*u

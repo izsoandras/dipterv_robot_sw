@@ -19,14 +19,14 @@ float Rv_p[6][6]={};
 float Rz_p[2][2]={};
 
 float A_o[2][2]={};
-float B_p[2][1]={};
-float C_p[1][2]={};
-float Rv_p[2][2]={};
-float Rz_p[1][1]={};
+float B_o[2][1]={};
+float C_o[1][2]={};
+float Rv_o[2][2]={};
+float Rz_o[1][1]={};
 
 
-KF pos_estimator(A_p, B_p, C_p, Rv_p, Rz_p, 6, 2, 2);
-KF ori_estimator(A_o, B_o, C_o, Rv_o, Rz_o, 2, 1, 1);
+KF pos_estimator(&A_p[0][0], &B_p[0][0], &C_p[0][0], &Rv_p[0][0], &Rz_p[0][0], 6, 2, 2);
+KF ori_estimator(&A_o[0][0], &B_o[0][0], &C_o[0][0], &Rv_o[0][0], &Rz_o[0][0], 2, 1, 1);
 
 void update_est(){
     imu->update();

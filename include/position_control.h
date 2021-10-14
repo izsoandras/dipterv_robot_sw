@@ -1,3 +1,6 @@
+#ifndef POSITION_CONTROL_H
+#define POSITION_CONTROL_H
+
 #include "Functions.h"
 #include "wheel_control.h"
 #include "math.h"
@@ -30,13 +33,13 @@ float control2wheel[3][3] = {
     {-34.6410161513775,	20.0000000000000,	2.73692000000000}
 };
     // TODO: only 1 KF is needed
-    KF state_estimator(&A[0][0], &B[0][0], &C[0][0], &Rv[0][0], &Rz[0][0], 6, 2, 2);
+KF state_estimator(&A[0][0], &B[0][0], &C[0][0], &Rv[0][0], &Rz[0][0], 6, 2, 2);
 
 void position_control(){
         
         state_estimator.update(control_vec, meas_vec);
 
-        memcpy(state_vec, pos_estimator.x_hat, 3*sizeof(float));
+        memcpy(state_vec, state_estimator.x_hat, 3*sizeof(float));
 
         sub(ref_vec, state_vec, err_vec, 3);
 
@@ -62,3 +65,5 @@ void position_control_task(void* param){
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
+
+#endif

@@ -15,8 +15,8 @@
 #include "driver/pcnt.h"
 #include "wheel_control.h"
 #include "position_control.h"
-#include "mykalman.h"
 #include "esp_timer.h"
+#include "fusion.h"
 
 const char *ssid = "OmniBot";
 const char *password = "omnibot4";
@@ -62,32 +62,11 @@ void communicationTask(void* params);
 void sendSpeed(void* params);
 
 void param_handler(const char topic[], byte* payload, unsigned int length);
+void camera_handler(const char topic[], byte* payload, unsigned int length);
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Setup start");
-
-  float A[] = {1, -0.01, 0, 1};
-  float B[] = {1, 0};
-  float C[] = {1,0};
-  float Rv[] = {0.3,0,0, 0.003};
-  float Rz[] = {0.4};
-  KF testKF(A, B, C, Rv, Rz, 2, 1, 1);
-
-  uint64_t start = esp_timer_get_time();
-
-  float u = 0.1;
-  float y = 0.12;
-  uint16_t measNo = 100;
-  for(int i = 0; i < measNo; i++){
-    u += 0.01;
-    y += 0.012;
-    testKF.update(&u, &y);
-  }
-
-  uint64_t end = esp_timer_get_time();
-
-  ESP_LOGI("kf meas", "Total time: %fms, Single run: %fms", (end-start)/1000.0, (end-start)/(1000.0*measNo));
 
   batt.init();
   pinMode(LED_BUILTIN, OUTPUT);
@@ -157,7 +136,7 @@ void setup() {
                            NULL,
                            1);
 
-  xTaskCreatePinnedToCore(position_control,
+  xTaskCreatePinnedToCore(position_control_task,
                           "post_control",
                           2000,
                           NULL,
@@ -221,9 +200,19 @@ void param_handler(const char topic[], byte* payload, unsigned int length){
       case 0xA9:
         memcpy(&control_vec, payload + 2, 12);
         break;
+      case 0xB0:
+        memcpy(&ref_vec, payload+2, 12);
+        break;
       default:
         ESP_LOGW("MQTT", "Unknown type on params");
         break;
     }
+  }
+}
+
+void camera_handler(const char topic[], byte* payload, unsigned int length){
+  if(strcmp(topic, "cps") == 0){
+
+    memcpy(cam_vec, &payload[3], 3*sizeof(float));
   }
 }

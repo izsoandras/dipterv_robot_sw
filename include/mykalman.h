@@ -4,7 +4,7 @@
 #include "esp_log.h"
 
 class KF{
-    private:
+    public:
         float* x_hat;   // corrected, estimated state
         float* x_over;  // predicted state
         float* A;       // system matrix
@@ -24,7 +24,6 @@ class KF{
         float* Atrans;
         float* Yprev;
 
-    public:
     KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY);
     void update(float* u, float* y);
 };

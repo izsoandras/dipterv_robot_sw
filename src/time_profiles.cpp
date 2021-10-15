@@ -9,6 +9,7 @@
 #include "position_control.h"
 #include "mykalman.h"
 #include "esp_timer.h"
+#include "MPU9250.h"
 
 void setup()
 {
@@ -60,6 +61,22 @@ void setup()
     ESP_LOGI("prof","KF done");
 
     ESP_LOGI("kf meas", "Total time: %fms, Single run: %fms", (end - start) / 1000.0, (end - start) / (1000.0 * measNo));
+
+
+    MPU9250 imu;
+    Wire.begin();
+    imu.setup(0x68);
+    ESP_LOGI("prof","IMU init finished");
+    start = esp_timer_get_time();
+
+    for(int i = 0; i < measNo; i++){
+        imu.update();
+    }
+
+    end = esp_timer_get_time();
+    ESP_LOGI("prof","IMU done");
+
+    ESP_LOGI("imu meas", "Total time: %fms, Single run: %fms", (end - start) / 1000.0, (end - start) / (1000.0 * measNo));
 }
 
 void loop()

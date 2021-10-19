@@ -51,6 +51,7 @@ Motor *motors[3];
 Encoder *encoders[3];
 
 const int cycle_period = 10; // [ms]
+const float max_wheel_speed = 8; // [rad/s]
 
 float speed_setpoints[3] = {0,0,0};
 float current_speeds[3] = {0,0,0};
@@ -72,7 +73,27 @@ void wheel_control(void *params){
   int nl_idx = 0;
   while(true){
     
+        // saturation check
+        // float max_speed = 0;
+        // float abs_speed = 0;
+        // for(uint8_t i = 0; i < 3; i++){
+        //     abs_speed = fabs(speed_setpoints[i]);
+        //     if(abs_speed > max_wheel_speed){
+        //         if(abs_speed > max_speed){
+        //             max_speed == abs_speed;
+        //         }
+        //     }
+        // }
+
+        // if(max_speed > max_wheel_speed){
+        //     for(uint8_t i = 0; i < 3; i++){
+        //         speed_setpoints[i] *= max_wheel_speed/max_speed;
+        //     }
+        // }
+
+    // control loop
     for(mot_idx = 0; mot_idx <3; mot_idx++){
+
         // read sensor
         current_speeds[mot_idx] = encoders[mot_idx]->ticks2rad(encoders[mot_idx] ->getCountReset())/(cycle_period/1000.0);
 

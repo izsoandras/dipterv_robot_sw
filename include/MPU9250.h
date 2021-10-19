@@ -110,6 +110,7 @@ class MPU9250_ {
     float rpy[3] {0.f, 0.f, 0.f};
     float lin_acc[3] {0.f, 0.f, 0.f};  // linear acceleration (acceleration with gravity component subtracted)
     QuaternionFilter quat_filter;
+    size_t n_filter_iter {1};
 
     // Other settings
     bool has_connected {false};
@@ -156,6 +157,16 @@ public:
         return true;
     }
 
+    void sleep(bool b) {
+        byte c = read_byte(mpu_i2c_addr, PWR_MGMT_1);  // read the value, change sleep bit to match b, write byte back to register
+        if (b) {
+            c = c | 0x40;  // sets the sleep bit
+        } else {
+            c = c & 0xBF;  // mask 1011111 keeps all the previous bits
+        }
+        write_byte(mpu_i2c_addr, PWR_MGMT_1, c);
+    }
+
     void verbose(const bool b) {
         b_verbose = b;
     }
@@ -198,6 +209,11 @@ public:
         return (c == AK8963_WHOAMI_DEFAULT_VALUE);
     }
 
+    bool isSleeping() {
+        byte c = read_byte(mpu_i2c_addr, PWR_MGMT_1);
+        return (c & 0x40) == 0x40;
+    }
+
     bool available() {
         return has_connected && (read_byte(mpu_i2c_addr, INT_STATUS) & 0x01);
     }
@@ -231,7 +247,10 @@ public:
         float mn = +m[1];
         float me = -m[0];
         float md = +m[2];
-        quat_filter.update(an, ae, ad, gn, ge, gd, mn, me, md, q);
+
+        for (size_t i = 0; i < n_filter_iter; ++i) {
+            quat_filter.update(an, ae, ad, gn, ge, gd, mn, me, md, q);
+        }
 
         if (!b_ahrs) {
             temperature_count = read_temperature_data();               // Read the adc values
@@ -319,6 +338,10 @@ public:
 
     void selectFilter(QuatFilterSel sel) {
         quat_filter.select_filter(sel);
+    }
+
+    void setFilterIterations(const size_t n) {
+        if (n > 0) n_filter_iter = n;
     }
 
     bool selftest() {
@@ -425,6 +448,7 @@ private:
         }
     }
 
+public:
     void update_rpy(float qw, float qx, float qy, float qz) {
         // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
         // In this coordinate system, the positive z-axis is down toward Earth.
@@ -476,6 +500,7 @@ private:
         g[2] = (float)raw_acc_gyro_data[6] * gyro_resolution;
     }
 
+private:
     void read_accel_gyro(int16_t* destination) {
         uint8_t raw_data[14];                                                 // x/y/z accel register data stored here
         read_bytes(mpu_i2c_addr, ACCEL_XOUT_H, 14, &raw_data[0]);             // Read the 14 raw data registers into data array
@@ -488,6 +513,7 @@ private:
         destination[6] = ((int16_t)raw_data[12] << 8) | (int16_t)raw_data[13];
     }
 
+public:
     void update_mag() {
         int16_t mag_count[3] = {0, 0, 0};  // Stores the 16-bit signed magnetometer sensor output
 
@@ -503,6 +529,7 @@ private:
         }
     }
 
+private:
     bool read_mag(int16_t* destination) {
         const uint8_t st1 = read_byte(AK8963_ADDRESS, AK8963_ST1);
         if (st1 & 0x01) {                                                    // wait for magnetometer data ready bit to be set
@@ -741,14 +768,14 @@ private:
 
         if (b_verbose) {
             Serial.println("mag x min/max:");
-            Serial.println(mag_max[0]);
             Serial.println(mag_min[0]);
+            Serial.println(mag_max[0]);
             Serial.println("mag y min/max:");
-            Serial.println(mag_max[1]);
             Serial.println(mag_min[1]);
+            Serial.println(mag_max[1]);
             Serial.println("mag z min/max:");
-            Serial.println(mag_max[2]);
             Serial.println(mag_min[2]);
+            Serial.println(mag_max[2]);
         }
 
         // Get hard iron correction

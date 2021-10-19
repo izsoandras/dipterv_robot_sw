@@ -39,7 +39,8 @@ void setup()
                   0.959291425205444, 0.254282178971531, 0.251083857976031, 0.549723608291140, 0.567821640725221, 0.129906208473730};
     float Rz[] = {0.568823660872193, 0.0119020695012414,
                   0.469390641058206, 0.337122644398882};
-    KF testKF(A, B, C, Rv, Rz, 6, 2, 2);
+    float x0[] = {0,0,0};
+    KF testKF(A, B, C, Rv, Rz, x0, 6, 2, 2);
 
     ESP_LOGI("prof","KF init finished");
 
@@ -65,10 +66,14 @@ void setup()
 
     MPU9250 imu;
     Wire.begin();
-    imu.setup(0x68);
+    while(!imu.setup(0x68)){
+        ESP_LOGI("imu","MPU setup didn't work");
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
     ESP_LOGI("prof","IMU init finished");
     start = esp_timer_get_time();
 
+    float data[3];
     for(int i = 0; i < measNo; i++){
         imu.update();
     }
@@ -77,6 +82,30 @@ void setup()
     ESP_LOGI("prof","IMU done");
 
     ESP_LOGI("imu meas", "Total time: %fms, Single run: %fms", (end - start) / 1000.0, (end - start) / (1000.0 * measNo));
+
+    ESP_LOGI("prof","AccGyro start");
+    start = esp_timer_get_time();
+    for(int i = 0; i < measNo; i++){
+        imu.update_accel_gyro();
+    }
+
+    end = esp_timer_get_time();
+    ESP_LOGI("prof","AccGyro done");
+
+    ESP_LOGI("imu meas", "Total time: %fms, Single run: %fms", (end - start) / 1000.0, (end - start) / (1000.0 * measNo));
+
+    
+    ESP_LOGI("prof","Magn start");
+    start = esp_timer_get_time();
+    for(int i = 0; i < measNo; i++){
+        imu.update_mag();
+    }
+
+    end = esp_timer_get_time();
+    ESP_LOGI("prof","Magn done");
+
+    ESP_LOGI("imu meas", "Total time: %fms, Single run: %fms", (end - start) / 1000.0, (end - start) / (1000.0 * measNo));
+
 }
 
 void loop()

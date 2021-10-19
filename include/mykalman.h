@@ -3,18 +3,20 @@
 #include "Functions.h"
 #include "esp_log.h"
 
+float zeros[] = {0,0,0,0,0,0};
+
 class KF{
     public:
         float* x_hat;   // corrected, estimated state
         float* x_over;  // predicted state
-        float* A;       // system matrix
-        float* B;       // system input matrix
-        float* C;       // output matrix
-        float* Rv;      // 
-        float* Rz;      //
-        float* S;
-        float* G;
-        float* M;
+        float* A;       // state transition matrix
+        float* B;       // control matrix
+        float* C;       // observation matrix
+        float* Rv;      // Process noise covariance matrix
+        float* Rz;      // Measurement covariance matrix
+        float* S;       // Estimate covariance matrix (uncertainity)
+        float* G;       // Kalman Gain
+        float* M;       // Extrapolated (predicted) covariance matrix
 
         uint16_t dimX;
         uint16_t dimU;
@@ -24,12 +26,22 @@ class KF{
         float* Atrans;
         float* Yprev;
 
-    KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY);
+        float* dimX_temp;
+        float* dimXX_temp;
+
+        
+        float* dimXY_temp;
+        float* dimYY_temp;
+        float* dimY_temp;
+        bool isNewY = true;
+
+    KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[], const float x0[], const uint16_t dimX,const uint16_t dimU,const uint16_t dimY);
     void update(float* u, float* y);
 };
 
-KF::KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY){
+KF::KF(const float A[],const float B[],const float C[],const float Rv[],const float Rz[], const float x0[],const uint16_t dimX,const uint16_t dimU,const uint16_t dimY){
     x_hat = new float[dimX];
+    copy(x_hat, x0, dimX);
     x_over = new float[dimX];
 
     this->A = new float[dimX*dimX];
@@ -64,11 +76,15 @@ KF::KF(const float A[],const float B[],const float C[],const float Rv[],const fl
     this->dimX = dimX;
     this->dimU = dimU;
     this->dimY = dimY;
+
+    dimX_temp = new float[dimX];
+    dimXX_temp = new float[dimX*dimX];
+    dimXY_temp = new float[dimX*dimY];
+    dimYY_temp = new float[dimY*dimY];
+    dimY_temp = new float[dimY];
 }
 
 void KF::update(float* u, float* y){
-    float* dimX_temp = new float[dimX];
-    float* dimXX_temp = new float[dimX*dimX];
 
     // Prediction
     // x_over =  A*x_hat + B*u
@@ -81,15 +97,13 @@ void KF::update(float* u, float* y){
     mul(A,dimXX_temp,M, dimX, dimX, dimX);
     add(M, Rv, M, dimX, dimX);
 
-    bool isNewY = true;
     for(uint8_t i = 0; i < dimY && isNewY; i++){
         isNewY = Yprev[i] == y[i];
     }
 
     // Update
     if(isNewY){
-        float dimXY_temp[dimX*dimY];
-        float dimYY_temp[dimY*dimY];
+        // Serial.print("New");
 
         // G = M*C'*pinv(C*M*C' + Rz)
         mul(M,Ctrans, dimXY_temp, dimX,dimX, dimY);
@@ -104,7 +118,6 @@ void KF::update(float* u, float* y){
         mul(G,dimXY_temp, dimXX_temp, dimX,dimY, dimX);
         sub(M, dimXX_temp, S, dimX*dimX);
 
-        float dimY_temp[dimY];
 
         // x_hat = x_over + G*(y - C*x_over)
         mul(C,x_over, dimY_temp, dimY, dimX, 1);

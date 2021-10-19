@@ -4,6 +4,9 @@ MotorControllerPID::MotorControllerPID(Motor motor, Encoder encoder, uint time_s
 bool MotorControllerPID::init(){
     this->motor.init();
     this->encoder.init();
+
+    //TODO: megcsinalni rendesen az init checket
+    return true;
 }
 void MotorControllerPID::setSetpoint(float setpoint){
     this->setpoint = setpoint;

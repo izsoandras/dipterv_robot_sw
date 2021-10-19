@@ -7,8 +7,10 @@ enum MyTopics
 {
   telemetry,
   param,
+  cps,
   topics_no
 };
+const char *topicNames[] = {"tel", "param","cps"};
 
 enum TypeBytes
 {
@@ -47,14 +49,15 @@ public:
   void publish_u16(const char *topic, uint8_t type_byte, uint16_t i);
   void publishData(const char topic[],const uint8_t type, const byte *payload, const uint8_t length);
   void publishMotSpeed(const uint8_t mot_idx, float current_speed, float setpoint);
-  void publish3float(uint8_t type, const float[]);
+  void publish3float(uint8_t type, const float*);
+  void publishNfloat(uint8_t type, const float* floats, const uint8_t n);
   bool loop();
 
   bool add_calback(void (*on_msg_callback)(const char[], byte *, unsigned int));
   bool subscribe(const char topic[]);
 };
 
-const char *topicNames[] = {"tel", "param"};
+
 
 /* Instantiate the client object
 */
@@ -304,9 +307,18 @@ void OmniMQTTclient<MAX_CB_NO>::publishMotSpeed(const uint8_t mot_idx, float cur
 }
 
 template <int MAX_CB_NO>
-void OmniMQTTclient<MAX_CB_NO>::publish3float(uint8_t type, const float floats[3]){
-  uint8_t payload[3*sizeof(float)];
-  memcpy(payload, floats, 3*sizeof(float));
-  this->publishData("tel", type, payload, 3*sizeof(float));
+void OmniMQTTclient<MAX_CB_NO>::publish3float(uint8_t type, const float* floats){
+  uint8_t size = 3*sizeof(float);
+  uint8_t payload[size];
+  memcpy(payload, floats, size);
+  this->publishData("tel", type, payload, size);
+}
+
+template <int MAX_CB_NO>
+void OmniMQTTclient<MAX_CB_NO>::publishNfloat(uint8_t type, const float* floats, const uint8_t n){
+  uint8_t size = n*sizeof(float);
+  uint8_t payload[size];
+  memcpy(payload, floats, size);
+  this->publishData("tel", type, payload, size);
 }
 #endif
